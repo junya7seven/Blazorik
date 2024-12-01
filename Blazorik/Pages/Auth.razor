@@ -1,0 +1,39 @@
+﻿@page "/auth"
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<h3>Login</h3>
+
+<div>
+    <label>Email:</label>
+    <input @bind="email" />
+</div>
+<div>
+    <label>Password:</label>
+    <input @bind="password" type="password" />
+</div>
+<button @onclick="Login">Login</button>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color:red">@errorMessage</p>
+}
+
+@code {
+    private string email;
+    private string password;
+    private string errorMessage;
+
+    private async Task Login()
+    {
+        try
+        {
+            await AuthService.LoginAsync(email, password);
+            NavigationManager.NavigateTo("/"); // Перенаправление на главную страницу после успешного входа
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message; // Отображение сообщения об ошибке
+        }
+    }
+}
