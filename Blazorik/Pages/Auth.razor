@@ -1,39 +1,40 @@
-﻿@page "/auth"
+﻿@page "/login"
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 
 <h3>Login</h3>
 
-<div>
-    <label>Email:</label>
-    <input @bind="email" />
-</div>
-<div>
-    <label>Password:</label>
-    <input @bind="password" type="password" />
-</div>
-<button @onclick="Login">Login</button>
+<EditForm Model="loginModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <p style="color:red">@errorMessage</p>
-}
+    <div>
+        <label>Email</label>
+        <InputText @bind-Value="loginModel.Email" />
+    </div>
+
+    <div>
+        <label>Password</label>
+        <InputText @bind-Value="loginModel.Password" />
+    </div>
+
+    <button type="submit">Login</button>
+</EditForm>
 
 @code {
-    private string email;
-    private string password;
-    private string errorMessage;
+    private LoginRequest loginModel = new LoginRequest();
 
-    private async Task Login()
+    private async Task HandleValidSubmit()
     {
         try
         {
-            await AuthService.LoginAsync(email, password);
-            NavigationManager.NavigateTo("/"); // Перенаправление на главную страницу после успешного входа
+            var loginResponse = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+            NavigationManager.NavigateTo("/counter");
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message; // Отображение сообщения об ошибке
+            // Handle login failure
+            Console.WriteLine(ex.Message);
         }
     }
 }

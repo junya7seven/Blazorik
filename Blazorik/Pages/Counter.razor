@@ -1,12 +1,19 @@
 ﻿@page "/counter"
-
+@inject CustomAuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <h3>Welcome, Admin!</h3>
+        <p>This content is only accessible to users with the "Admin" role.</p>
+    </Authorized>
+    <NotAuthorized>
+        <h3>You do not have access to this content.</h3>
+        <p>You need to be an admin to access this page.</p>
+    </NotAuthorized>
+</AuthorizeView>
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
     private int currentCount = 0;
@@ -14,5 +21,13 @@
     private void IncrementCount()
     {
         currentCount++;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
     }
 }
